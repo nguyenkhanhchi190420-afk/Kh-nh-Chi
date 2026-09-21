@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh Boss – Vua Nhiệt Kế | KHTN 6</title>
+<style>
+:root{
+  --bg1:#10183d; --bg2:#24105b; --card:#ffffffee; --ink:#17203d;
+  --accent:#6c5ce7; --cyan:#20d9ff; --gold:#ffd166; --green:#16c784;
+  --red:#ff5b6e; --muted:#6b7280; --shadow:0 18px 50px #0006;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color:white; background:radial-gradient(circle at 20% 10%,#3846a5 0,#171b49 35%,#090d24 100%);
+  overflow-x:hidden;
+}
+body:before,body:after{content:"";position:fixed;border-radius:50%;filter:blur(2px);opacity:.2;z-index:-1}
+body:before{width:320px;height:320px;background:#20d9ff;left:-120px;top:80px}
+body:after{width:380px;height:380px;background:#c85cff;right:-160px;bottom:-120px}
+.app{width:min(1050px,94vw);margin:0 auto;padding:20px 0 34px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{font-weight:900;letter-spacing:.3px;font-size:clamp(18px,3vw,27px)}
+.badge{background:#ffffff18;border:1px solid #ffffff2a;border-radius:999px;padding:8px 13px;font-weight:800}
+.screen{display:none}.screen.active{display:block}
+.card{background:var(--card);color:var(--ink);border-radius:28px;padding:clamp(20px,4vw,38px);box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+.hero{text-align:center;max-width:760px;margin:8vh auto 0}
+.boss{font-size:clamp(70px,15vw,145px);filter:drop-shadow(0 15px 15px #0004);animation:float 2.7s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px) rotate(-2deg)}}
+h1{font-size:clamp(30px,6vw,56px);margin:5px 0 8px}
+h2{font-size:clamp(24px,4vw,36px);margin:0 0 12px}
+.subtitle{color:#cdd5ff;font-size:clamp(15px,2.5vw,19px)}
+input{
+  width:min(480px,100%);padding:16px 18px;border:2px solid #dbe0ff;border-radius:16px;
+  font-size:18px;outline:none;margin:20px auto 10px;display:block
+}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px #6c5ce722}
+button{
+  border:0;border-radius:15px;padding:13px 18px;font-size:16px;font-weight:850;cursor:pointer;
+  transition:.18s transform,.18s filter,.18s box-shadow;background:#eef0ff;color:var(--ink)
+}
+button:hover{transform:translateY(-2px);filter:brightness(1.03)}
+button:active{transform:translateY(1px)}
+.primary{background:linear-gradient(135deg,#6c5ce7,#8f62ff);color:white;box-shadow:0 9px 25px #6c5ce755}
+.gold{background:linear-gradient(135deg,#ffbf3f,#ffd166);color:#4a2d00}
+.danger{background:#ffe8ec;color:#b4233b}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.instructions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.tip{padding:15px;border-radius:18px;background:#f4f5ff;text-align:left}
+.tip b{display:block;margin-bottom:5px}
+@media(max-width:700px){.instructions{grid-template-columns:1fr}.topbar{align-items:flex-start}.topbar .badge{font-size:13px}}
+.hud{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:12px}
+.progress-wrap{background:#ffffff18;border-radius:99px;padding:4px;border:1px solid #ffffff22}
+.progress{height:14px;border-radius:99px;background:linear-gradient(90deg,#20d9ff,#8b5cf6);width:0%;transition:.4s}
+.hud-right{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.hud-pill{background:#ffffff18;border:1px solid #ffffff22;padding:9px 12px;border-radius:14px;font-weight:850}
+.bossbar{margin:0 0 14px}
+.boss-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-weight:900}
+.hp-track{height:20px;background:#28152b;border:1px solid #ffffff22;border-radius:99px;overflow:hidden}
+.hp{height:100%;width:100%;background:linear-gradient(90deg,#ff4d6d,#ff8a4d);transition:.45s}
+.question-card{position:relative;overflow:hidden}
+.round{display:inline-flex;background:#eeeaff;color:#5747c9;padding:7px 11px;border-radius:999px;font-weight:900;font-size:13px;margin-bottom:12px}
+.question{font-size:clamp(21px,3.3vw,30px);font-weight:900;line-height:1.3;margin-bottom:18px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:650px){.options{grid-template-columns:1fr}}
+.option{text-align:left;background:white;border:2px solid #e2e5f2;padding:15px;border-radius:16px}
+.option:hover{border-color:#8c7ff0;background:#faf9ff}
+.option.correct{background:#e8fff5;border-color:var(--green);color:#08754e}
+.option.wrong{background:#fff0f2;border-color:var(--red);color:#a71d32}
+.feedback{margin-top:16px;padding:15px;border-radius:16px;display:none;font-weight:750}
+.feedback.show{display:block}.feedback.good{background:#e8fff5;color:#08754e}.feedback.bad{background:#fff0f2;color:#a71d32}
+.next{margin-top:14px;display:none}.next.show{display:inline-flex}
+.challenge-area{min-height:130px}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match-item{padding:15px;border:2px solid #e1e5f1;border-radius:15px;background:white;cursor:pointer;font-weight:750}
+.match-item.selected{border-color:#6c5ce7;background:#f1efff}
+.match-item.matched{border-color:var(--green);background:#eafff4;cursor:default}
+.drag-list,.sort-list{display:grid;gap:10px}
+.drag-item,.sort-item{padding:14px;background:white;border:2px dashed #cbd2e6;border-radius:14px;cursor:grab;font-weight:750}
+.dropzone{padding:20px;border:3px dashed #9ca7c8;border-radius:18px;text-align:center;background:#f7f8ff;color:#555}
+.dropzone.over{border-color:#6c5ce7;background:#eeecff}
+.sort-item{display:flex;align-items:center;justify-content:space-between;border-style:solid}
+.mini-btn{padding:8px 10px;font-size:13px}
+.result{text-align:center}
+.trophy{font-size:100px;animation:pop .7s ease}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.score-big{font-size:64px;font-weight:1000;color:#5c4bdc}
+.stars{font-size:40px;letter-spacing:5px}
+.review{margin:18px auto;max-width:680px;text-align:left;background:#f5f6ff;padding:16px;border-radius:18px}
+.toast{position:fixed;top:20px;left:50%;transform:translate(-50%,-130%);padding:12px 18px;border-radius:999px;background:#111a3d;color:#fff;font-weight:900;z-index:50;box-shadow:var(--shadow);transition:.35s}
+.toast.show{transform:translate(-50%,0)}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:60;animation:fall 1.5s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.shake{animation:shake .35s}.flash{animation:flash .5s}
+@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes flash{50%{box-shadow:0 0 0 8px #ff4d6d55}}
+.small{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">🌡️ ĐÁNH BOSS – VUA NHIỆT KẾ</div>
+    <div class="badge" id="playerBadge">KHTN 6</div>
+  </div>
+
+  <section id="start" class="screen active">
+    <div class="card hero">
+      <div class="boss">👹🌡️</div>
+      <h1>Vua Nhiệt Kế</h1>
+      <p class="subtitle">15 thử thách từ dễ → khó. Hãy đánh bại Boss bằng kiến thức về đo nhiệt độ!</p>
+      <input id="nameInput" maxlength="30" placeholder="Nhập tên học sinh..." autocomplete="off">
+      <div class="row"><button class="primary" onclick="startGame()">🚀 Bắt đầu chơi</button><button onclick="showHelp()">📖 Hướng dẫn</button></div>
+      <div class="instructions">
+        <div class="tip"><b>🎯 Mục tiêu</b>Trả lời đúng để gây sát thương lên Boss.</div>
+        <div class="tip"><b>⭐ Điểm</b>Câu khó có nhiều điểm hơn. Điểm cao nhận huy hiệu.</div>
+        <div class="tip"><b>🎮 Đa dạng</b>Có chọn đáp án, ghép cặp, kéo thả và sắp xếp.</div>
+      </div>
+      <div class="small">Có thể chơi bằng chuột, bàn phím hoặc màn hình cảm ứng.</div>
+    </div>
+  </section>
+
+  <section id="help" class="screen">
+    <div class="card">
+      <h2>📖 Hướng dẫn chơi</h2>
+      <ol>
+        <li>Nhập tên rồi bấm <b>Bắt đầu chơi</b>.</li>
+        <li>Vượt qua 15 thử thách. Thanh tiến trình cho biết bạn đang ở đâu.</li>
+        <li>Trả lời đúng sẽ nhận điểm và làm Boss mất HP.</li>
+        <li>Mỗi thử thách có một dạng tương tác khác nhau.</li>
+        <li>Ở câu kéo thả, kéo thẻ vào vùng đích. Ở câu ghép cặp, chọn lần lượt hai thẻ phù hợp.</li>
+        <li>Ở câu sắp xếp, dùng ▲/▼ để đưa các bước về đúng thứ tự.</li>
+        <li>Kết thúc, bạn sẽ nhận huy hiệu dựa trên tổng điểm.</li>
+      </ol>
+      <button class="primary" onclick="backStart()">← Quay lại</button>
+    </div>
+  </section>
+
+  <section id="game" class="screen">
+    <div class="hud">
+      <div class="progress-wrap"><div id="progress" class="progress"></div></div>
+      <div class="hud-right"><div class="hud-pill">👤 <span id="hudName"></span></div><div class="hud-pill">⭐ <span id="score">0</span></div></div>
+    </div>
+    <div class="bossbar">
+      <div class="boss-head"><span>👹 VUA NHIỆT KẾ</span><span id="hpText">150 / 150 HP</span></div>
+      <div class="hp-track"><div id="hp" class="hp"></div></div>
+    </div>
+    <div id="questionCard" class="card question-card"></div>
+  </section>
+
+  <section id="win" class="screen">
+    <div class="card result">
+      <div class="trophy">🏆</div>
+      <h1>CHIẾN THẮNG!</h1>
+      <p class="subtitle" id="winText"></p>
+      <div class="score-big" id="finalScore">0</div>
+      <div class="stars" id="stars">⭐⭐⭐</div>
+      <h2 id="rank">Bậc thầy nhiệt kế</h2>
+      <div class="review" id="review"></div>
+      <div class="row"><button class="primary" onclick="restart()">🔄 Chơi lại</button><button onclick="backStart()">🏠 Trang chủ</button></div>
+    </div>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const questions = [
+ {type:'mcq', title:'Câu 1 • Khởi động', q:'Nhiệt độ cho biết điều gì?', opts:['Khối lượng của vật','Mức độ nóng, lạnh của vật','Thể tích của vật','Khối lượng riêng của vật'], ans:1, points:10, explain:'Nhiệt độ cho biết mức độ nóng hay lạnh của vật.'},
+ {type:'mcq', title:'Câu 2 • Đơn vị', q:'Đơn vị đo nhiệt độ thường dùng trong bài học là:', opts:['mét (m)','kilôgam (kg)','độ C (°C)','giây (s)'], ans:2, points:10, explain:'Trong thang Celsius, nhiệt độ được đo bằng độ C (°C).'},
+ {type:'mcq', title:'Câu 3 • Mốc nhiệt độ', q:'Trong thang Celsius, nước đá đang tan và nước tinh khiết đang sôi ở điều kiện bình thường lần lượt là:', opts:['0°C và 100°C','100°C và 0°C','0°C và 50°C','50°C và 100°C'], ans:0, points:10, explain:'Hai mốc quan trọng là 0°C (nước đá đang tan) và 100°C (nước tinh khiết đang sôi ở điều kiện bình thường).'},
+ {type:'mcq', title:'Câu 4 • Phát hiện lỗi', q:'An nói: “Khi dùng nhiệt kế thủy ngân cần điều chỉnh về vạch số 0 trước mỗi lần đo”. Phát biểu này:', opts:['Đúng','Sai','Chỉ đúng khi đo nước','Chỉ đúng khi đo cơ thể'], ans:1, points:10, explain:'Không cần điều chỉnh nhiệt kế về vạch 0 trước mỗi lần đo; cần biết GHĐ, ĐCNN và sử dụng đúng cách.'},
+ {type:'match', title:'Câu 5 • Ghép cặp', q:'Ghép đối tượng với nhiệt kế phù hợp.', pairs:[['Đo nhiệt độ cơ thể','Nhiệt kế y tế'],['Đo nhiệt độ môi trường thấp','Nhiệt kế rượu'],['Đo nước nóng khoảng 80°C','Nhiệt kế thủy ngân']], points:10, explain:'Chọn loại nhiệt kế có khoảng đo phù hợp với nhiệt độ cần đo.'},
+ {type:'mcq', title:'Câu 6 • Tình huống', q:'Muốn đo nhiệt độ nước trong tủ lạnh mà chỉ có nhiệt kế y tế, bạn có nên dùng không?', opts:['Có, vì nhiệt kế nào cũng đo được','Không, vì nhiệt kế y tế có khoảng đo phù hợp với cơ thể người','Có, nếu nhúng thật sâu','Có, nếu lắc nhiệt kế trước'], ans:1, points:10, explain:'Nhiệt kế y tế không phù hợp để đo nhiệt độ thấp trong tủ lạnh.'},
+ {type:'drag', title:'Câu 7 • Kéo thả – Chọn đúng “vũ khí”', q:'Kéo từng đối tượng vào đúng ô nhiệt kế. Ghép đủ 3 cặp để vượt qua thử thách.', items:[['🌡️ Đo nhiệt độ cơ thể người','Nhiệt kế y tế'],['❄️ Đo nhiệt độ nước trong tủ lạnh','Nhiệt kế rượu'],['🔥 Đo băng phiến đang nóng chảy khoảng 80°C','Nhiệt kế thủy ngân']], points:10, explain:'Mỗi loại nhiệt kế có phạm vi đo và công dụng phù hợp. Hãy chọn nhiệt kế có khoảng đo thích hợp với đối tượng cần đo.'},
+ {type:'mcq', title:'Câu 8 • Mốc 0°C', q:'Muốn đánh dấu giá trị 0°C trên một nhiệt kế chưa có thang chia, nên đặt bầu nhiệt kế vào đâu?', opts:['Nước đang sôi','Nước lạnh tinh khiết','Nước đá đang tan','Không khí trong phòng'], ans:2, points:10, explain:'Mốc 0°C được xác định bằng nước đá đang tan.'},
+ {type:'sort', title:'Câu 9 • Sắp xếp quy trình', q:'Sắp xếp đúng các bước sử dụng nhiệt kế y tế.', steps:['Đặt bầu nhiệt kế vào vị trí cần đo.','Lau sạch và vẩy cho cột chất lỏng xuống mức thích hợp.','Chờ khoảng thời gian cần thiết.','Đọc kết quả.'], order:[1,0,2,3], points:15, explain:'Thứ tự: làm cột chất lỏng xuống mức thích hợp → đặt vào vị trí đo → chờ → đọc kết quả.'},
+ {type:'mcq', title:'Câu 10 • ĐCNN', q:'Một nhiệt kế có khoảng từ 0°C đến 100°C. Giữa hai vạch 10°C liên tiếp có 10 khoảng chia nhỏ bằng nhau. ĐCNN là:', opts:['0,1°C','1°C','10°C','100°C'], ans:1, points:15, explain:'10°C chia thành 10 khoảng bằng nhau nên mỗi khoảng là 1°C.'},
+ {type:'mcq', title:'Câu 11 • GHĐ', q:'Một nhiệt kế có GHĐ 50°C. Có thể dùng nó để đo nước đang sôi 100°C không?', opts:['Có','Không','Chỉ đo được nếu nhúng sâu','Chỉ đo được khi nước nguội'], ans:1, points:15, explain:'Không. Nhiệt độ cần đo vượt quá GHĐ của nhiệt kế.'},
+ {type:'mcq', title:'Câu 12 • Hiệu chuẩn', q:'Trong nước đá cột chất lỏng dài 4,5 cm; trong nước đang sôi dài 20,5 cm. Khoảng 0°C → 100°C tương ứng với bao nhiêu cm?', opts:['12 cm','15 cm','16 cm','25 cm'], ans:2, points:20, explain:'20,5 − 4,5 = 16 cm.'},
+ {type:'mcq', title:'Câu 13 • Cơ chế cấu tạo nhiệt kế', q:'Vì sao chất lỏng trong nhiệt kế có thể dùng để đo nhiệt độ?', opts:['Vì chất lỏng tự phát sáng khi nóng lên','Vì chất lỏng nở ra hoặc co lại theo nhiệt độ, làm mực chất lỏng thay đổi trong ống mao dẫn','Vì chất lỏng luôn giữ nguyên thể tích','Vì ống nhiệt kế tự thay đổi khối lượng'], ans:1, points:20, explain:'Nhiệt kế chất lỏng hoạt động dựa trên sự nở vì nhiệt của chất lỏng: khi nhiệt độ thay đổi, chất lỏng nở ra hoặc co lại làm mực chất lỏng thay đổi và ta đọc được nhiệt độ.'},
+ {type:'mcq', title:'Câu 14 • Sử dụng nhiệt kế điện tử', q:'Khi đo nhiệt độ bằng nhiệt kế điện tử, cách làm nào dưới đây là phù hợp nhất?', opts:['Bật nhiệt kế, đặt đầu đo đúng vị trí cần đo, giữ ổn định và chờ máy báo kết quả','Đặt đầu đo vào bất kỳ vị trí nào rồi đọc ngay lập tức','Chạm tay liên tục vào đầu đo để nhiệt kế hoạt động nhanh hơn','Đo khi nhiệt kế chưa được bật'], ans:0, points:20, explain:'Cần bật nhiệt kế, đặt đầu đo đúng vị trí, giữ ổn định và chờ tín hiệu báo kết quả rồi mới đọc nhiệt độ.'},
+ {type:'mcq', title:'Câu 15 • Xử lí khi vỡ nhiệt kế thủy ngân', q:'Chẳng may làm vỡ nhiệt kế y tế thủy ngân, việc nào dưới đây cần tránh?', opts:['Đưa học sinh ra khỏi khu vực và báo ngay cho giáo viên/người lớn','Mở cửa thông thoáng nếu có thể và hạn chế tiếp xúc với thủy ngân','Dùng tay không nhặt các giọt thủy ngân hoặc dùng máy hút bụi để hút chúng','Cách ly khu vực và xử lí theo hướng dẫn an toàn'], ans:2, points:30, explain:'Không được dùng tay không chạm vào thủy ngân và không dùng máy hút bụi vì có thể làm thủy ngân phát tán rộng hơn. Cần cách ly khu vực và báo cho người lớn/nhân viên có trách nhiệm xử lí an toàn.'}
+];
+
+let state={name:'',i:0,score:0,hp:150,answered:false,correct:0};
+let audioCtx=null;
+function sound(kind){
+  try{
+    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    const now=audioCtx.currentTime;
+    const seq=kind==='good'?[523,659,784]:kind==='bad'?[180,130]:[392,523,659,784];
+    o.type='sine'; g.gain.setValueAtTime(.0001,now);
+    seq.forEach((f,k)=>o.frequency.setValueAtTime(f,now+k*.09));
+    g.gain.exponentialRampToValueAtTime(.12,now+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,now+seq.length*.09+.1);
+    o.start(now);o.stop(now+seq.length*.09+.12);
+  }catch(e){}
+}
+function screen(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function showHelp(){screen('help')}
+function backStart(){screen('start')}
+function startGame(){
+  const n=document.getElementById('nameInput').value.trim();
+  if(!n){document.getElementById('nameInput').focus();toast('✏️ Hãy nhập tên học sinh trước nhé!');return}
+  state={name:n,i:0,score:0,hp:150,answered:false,correct:0};
+  document.getElementById('hudName').textContent=n;
+  document.getElementById('playerBadge').textContent='👤 '+n;
+  screen('game'); render();
+}
+function restart(){startGame()}
+function render(){
+  const q=questions[state.i], total=questions.length;
+  state.answered=false;
+  document.getElementById('score').textContent=state.score;
+  document.getElementById('progress').style.width=((state.i)/total*100)+'%';
+  document.getElementById('hp').style.width=Math.max(0,state.hp/150*100)+'%';
+  document.getElementById('hpText').textContent=Math.max(0,state.hp)+' / 150 HP';
+  const c=document.getElementById('questionCard');
+  let body=`<div class="round">${q.title} • ${q.points} điểm</div><div class="question">${q.q}</div><div class="challenge-area">`;
+  if(q.type==='mcq') body+=`<div class="options">${q.opts.map((o,k)=>`<button class="option" onclick="answerMCQ(${k})">${String.fromCharCode(65+k)}. ${o}</button>`).join('')}</div>`;
+  if(q.type==='match') body+=matchHTML(q);
+  if(q.type==='drag') body+=dragHTML(q);
+  if(q.type==='sort') body+=sortHTML(q);
+  body+=`</div><div id="feedback" class="feedback"></div><button id="nextBtn" class="primary next" onclick="nextQuestion()">Tiếp theo ➜</button>`;
+  c.innerHTML=body;
+}
+function answerMCQ(k){
+  if(state.answered)return; state.answered=true;
+  const q=questions[state.i], buttons=[...document.querySelectorAll('.option')];
+  buttons.forEach((b,i)=>{if(i===q.ans)b.classList.add('correct');if(i===k&&i!==q.ans)b.classList.add('wrong')});
+  finishAnswer(k===q.ans,q.explain);
+}
+function finishAnswer(ok,explain){
+  const q=questions[state.i];
+  const fb=document.getElementById('feedback');
+  if(ok){state.score+=q.points;state.hp-=q.points;state.correct++;sound('good');fb.className='feedback show good';fb.innerHTML='✅ Chính xác! <span class="small">'+explain+'</span>';document.getElementById('questionCard').classList.add('flash');toast('🎯 Chính xác! +'+q.points+' điểm');}
+  else{sound('bad');fb.className='feedback show bad';fb.innerHTML='❌ Chưa đúng. '+explain;document.getElementById('questionCard').classList.add('shake');toast('💡 Hãy xem gợi ý và ghi nhớ nhé!');}
+  setTimeout(()=>document.getElementById('questionCard').classList.remove('flash','shake'),500);
+  document.getElementById('score').textContent=state.score;
+  document.getElementById('hp').style.width=Math.max(0,state.hp/150*100)+'%';
+  document.getElementById('hpText').textContent=Math.max(0,state.hp)+' / 150 HP';
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  state.i++;
+  if(state.i>=questions.length){win();return}
+  render();window.scrollTo({top:0,behavior:'smooth'});
+}
+function matchHTML(q){
+  return `<div class="match-grid"><div>${q.pairs.map((p,i)=>`<div class="match-item" id="L${i}" onclick="pickMatch('L',${i})">${p[0]}</div>`).join('')}</div><div>${q.pairs.map((p,i)=>`<div class="match-item" id="R${i}" onclick="pickMatch('R',${i})">${p[1]}</div>`).join('')}</div></div><p class="small">Chọn một thẻ bên trái rồi chọn thẻ tương ứng bên phải.</p>`;
+}
+let matchSel=null,matchDone=0;
+function pickMatch(side,i){
+  if(state.answered)return;
+  if(side==='L'){matchSel=i;document.querySelectorAll('[id^=L]').forEach(x=>x.classList.remove('selected'));document.getElementById('L'+i).classList.add('selected');return}
+  if(matchSel===null)return;
+  const left=document.getElementById('L'+matchSel),right=document.getElementById('R'+i);
+  if(matchSel===i){left.classList.add('matched');right.classList.add('matched');matchDone++;sound('good');matchSel=null;if(matchDone===questions[state.i].pairs.length){matchDone=0;state.answered=true;finishAnswer(true,questions[state.i].explain)}}
+  else{sound('bad');toast('❌ Chưa khớp, thử lại!');left.classList.add('shake');right.classList.add('shake');setTimeout(()=>{left.classList.remove('shake');right.classList.remove('shake')},400)}
+}
+function dragHTML(q){
+ return `<div class="drag-list" id="dragSource">${q.items.map((it,i)=>`<div class="drag-item" id="drag${i}" draggable="true" ondragstart="dragStart(event,${i})">${it[0]}</div>`).join('')}</div>
+ <div style="height:12px"></div>
+ <div class="match-grid">${q.items.map((it,i)=>`<div id="target${i}" class="dropzone" data-target="${i}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropItem(event,${i})">🎯 ${it[1]}<br><span class="small">Thả đối tượng phù hợp vào đây</span></div>`).join('')}</div>
+ <div id="dragResult" class="small" style="margin-top:12px">Đã ghép: 0/3</div>`;
+}
+let dragIndex=null, dragDone=new Set();
+function dragStart(e,i){dragIndex=i}
+function dropItem(e,targetIndex){
+ e.preventDefault();
+ const target=document.getElementById('target'+targetIndex);
+ target.classList.remove('over');
+ if(state.answered || dragIndex===null || dragDone.has(dragIndex)) return;
+ const q=questions[state.i];
+ if(dragIndex===targetIndex){
+   target.classList.add('matched');
+   target.innerHTML='✅ '+q.items[targetIndex][1]+'<br><b>'+q.items[targetIndex][0]+'</b>';
+   const card=document.getElementById('drag'+dragIndex);
+   card.style.opacity='.35'; card.draggable=false;
+   dragDone.add(dragIndex);
+   sound('good');
+   document.getElementById('dragResult').textContent=`Đã ghép: ${dragDone.size}/3`;
+   toast('✅ Ghép đúng!');
+   if(dragDone.size===q.items.length){
+      state.answered=true;
+      finishAnswer(true,q.explain);
+   }
+ }else{
+   sound('bad');
+   target.classList.add('shake');
+   setTimeout(()=>target.classList.remove('shake'),400);
+   toast('❌ Chưa đúng! Hãy thử lại.');
+ }
+ dragIndex=null;
+}
+function sortHTML(q){
+ return `<div id="sortList" class="sort-list">${q.steps.map((s,i)=>`<div class="sort-item" data-id="${i}"><span>${s}</span><span><button class="mini-btn" onclick="moveSort(this,-1)">▲</button><button class="mini-btn" onclick="moveSort(this,1)">▼</button></span></div>`).join('')}</div><button class="primary" style="margin-top:14px" onclick="checkSort()">🔎 Kiểm tra thứ tự</button>`;
+}
+function moveSort(btn,dir){
+ const item=btn.closest('.sort-item'), list=item.parentElement;
+ if(dir<0&&item.previousElementSibling)list.insertBefore(item,item.previousElementSibling);
+ if(dir>0&&item.nextElementSibling)list.insertBefore(item.nextElementSibling,item);
+}
+function checkSort(){
+ if(state.answered)return;
+ const ids=[...document.querySelectorAll('.sort-item')].map(x=>+x.dataset.id);
+ const ok=ids.every((v,i)=>v===questions[state.i].order[i]);
+ finishAnswer(ok,questions[state.i].explain);
+}
+function win(){
+ document.getElementById('progress').style.width='100%';
+ document.getElementById('finalScore').textContent=state.score;
+ document.getElementById('winText').textContent=`Chúc mừng ${state.name}! Bạn đã vượt qua ${state.correct}/${questions.length} thử thách và hạ gục Vua Nhiệt Kế.`;
+ let rank,stars;
+ if(state.score>=190){rank='⚡ Kẻ hạ gục Vua Nhiệt Kế';stars='⭐⭐⭐⭐⭐'}
+ else if(state.score>=145){rank='👑 Bậc thầy nhiệt kế';stars='⭐⭐⭐⭐'}
+ else if(state.score>=100){rank='🔬 Chuyên gia phòng thí nghiệm';stars='⭐⭐⭐'}
+ else if(state.score>=50){rank='🌡️ Nhà đo nhiệt độ';stars='⭐⭐'}
+ else {rank='🔰 Tân binh nhiệt kế';stars='⭐'}
+ document.getElementById('rank').textContent=rank;document.getElementById('stars').textContent=stars;
+ document.getElementById('review').innerHTML=`<b>📊 Kết quả:</b> ${state.correct}/${questions.length} câu đúng.<br>⭐ Điểm: <b>${state.score}</b><br>🧠 Hãy ôn lại các phần: GHĐ – ĐCNN, cách chọn nhiệt kế và bài toán hiệu chuẩn nếu muốn phá kỷ lục.`;
+ screen('win');sound('win');confetti();
+}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>x.classList.remove('show'),1500)}
+function confetti(){
+ for(let i=0;i<90;i++){const x=document.createElement('div');x.className='confetti';x.style.left=Math.random()*100+'vw';x.style.background=`hsl(${Math.random()*360},90%,60%)`;x.style.animationDelay=Math.random()*.8+'s';x.style.transform=`rotate(${Math.random()*360}deg)`;document.body.appendChild(x);setTimeout(()=>x.remove(),2400)}
+}
+document.addEventListener('keydown',e=>{
+ if(e.key==='Enter' && document.getElementById('start').classList.contains('active'))startGame();
+});
+</script>
+</body>
+</html>
